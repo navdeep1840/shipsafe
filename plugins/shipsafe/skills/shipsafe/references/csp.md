@@ -32,6 +32,8 @@ Rules:
 - `'unsafe-inline'` in `style-src` is an acceptable trade-off. In `script-src`, prefer nonces (Next.js: nextjs.md) or hashes.
 - Google tag / GA4 needs: `script-src https://www.googletagmanager.com`, `connect-src https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com`, `img-src https://*.google-analytics.com https://www.googletagmanager.com`. Allowing GTM lets anyone with GTM access add scripts. Tell the user, and restrict who can edit the container.
 - Not deployed yet: there's no `--raw` data, so grep the repo for hosts (step 1) and list the hosts you added in the report so the user can check them.
+- Shared CDNs (unpkg, jsdelivr, cdnjs) host every npm package. Allow the exact path (`https://unpkg.com/canvas-confetti@1.9.4/`), not the whole host.
+- Inline `<script>` blocks outside Next.js: add a `'sha256-…'` hash of the exact script text (take it from the built HTML) instead of `'unsafe-inline'`.
 - `connect-src` is what stops stolen data from being sent out. Keep it tight.
 
 ## 3. Roll out

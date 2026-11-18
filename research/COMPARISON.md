@@ -28,8 +28,8 @@ Each cell is checked against the tool's own source code where it is open source,
 | retire.js | N | N | N | N | N | N | N | N | N | N | N | N | N | N | Y | N | N | N | N | N | N | N | N | N | N | N | N | Y |
 
 Our own partial cells:
-- **15 (vulnerable JS libs):** we match 4 libraries by version string. retire.js and OSV cover thousands.
-- **20 (takeover/dangling):** we check the apex domain and `www` only, not every subdomain.
+- **15 (vulnerable JS libs):** uses the retire.js database (thousands of versions), but only for scripts the homepage loads. Libraries bundled inside other JS files are matched only where retire.js can recognise them.
+- **20 (takeover/dangling):** with `--owned`, every subdomain in Certificate Transparency logs (up to 300). A wildcard certificate hides subdomains, so the skill asks for the DNS list.
 
 ## Honest takeaways
 - **Nothing in our checks is unique on its own.** The only check no other tool had was dead or unpinned third-party script domains. What's different is having all of it in one free, local skill that also fixes and re-verifies.

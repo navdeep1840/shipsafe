@@ -1,8 +1,8 @@
 ---
 name: shipsafe
-description: "Scans a live website URL for security problems any visitor or attacker can see (missing CSP/HSTS/clickjacking headers, weak cookie flags, uncontrolled third-party scripts, vulnerable JS libraries, public source maps, exposed .env/.git, debug pages, CORS, SPF/DMARC), ranks them by real-world risk, applies small config fixes in the user's repo (next.config, vercel.json, Netlify _headers, nginx, Cloudflare, Express), and re-scans to verify. Use when the user asks to check or harden a site's security, security headers, CSP, cookies, or 'is my website secure', even if they don't say scan."
+description: "Check and fix website security: security headers, CSP, HSTS, cookies, exposed .env/.git, vulnerable JS, SPF/DMARC. Scans the live URL, fixes repo config, re-scans. Use for 'is my site secure'."
 license: MIT
-compatibility: Needs Node.js 18+ and network access. Zero npm dependencies.
+compatibility: Requires Node.js 18+ and outbound network access. Zero npm dependencies.
 ---
 
 # Web security check
@@ -14,7 +14,7 @@ Finds the security basics that anyone visiting a deployed site can see, and fixe
 - If the user asks for `--owned` checks without saying the site is theirs, ask them to confirm they own it or have permission. A URL alone is not enough.
 - Never switch a CSP to enforcing without the user's explicit OK. New CSPs ship as `Content-Security-Policy-Report-Only`.
 - Never change DNS, deploy, commit or push. Give DNS records as text; the user applies them.
-- Keep every fix minimal: add or change headers, flags and settings. Do not refactor app code. Never run `git rm`, `git commit` or history rewrites; tell the user the command instead.
+- Keep every fix minimal: add or change headers, flags, settings and dependency versions. Do not refactor app code. Never run `git rm`, `git commit` or history rewrites; tell the user the command instead.
 - Ask before adding anything that needs information you don't have (a security.txt contact, the mail providers for SPF). Don't invent it.
 
 ## Workflow
@@ -33,15 +33,15 @@ Copy this checklist and tick it off as you go:
 ### 1. Scan
 Ask for the URL if you don't have it (look in `package.json` `homepage`, README, `vercel.json`, `netlify.toml` first).
 
-**Not deployed yet?** Skip the scan. Build the findings from step 3 (local checks) plus the standard headers in the platform file, and use the same ids and report template, titled "(repo only, not verified live)". Verification waits until the user deploys and shares the URL. Skip DNS findings until the domain is known.
+**Not deployed yet?** Skip the scan. Build the findings from step 3 (local checks) plus the standard headers in the platform file, and use the same ids and report template, titled "(repo only, not verified live)", with "Scanned as: repo only". Count what you found before fixing; don't count states your own fix creates (a new report-only CSP is a next step, not a finding). If the platform can serve production locally (`next start`, `node server.js`), check the new headers with `curl -sI`. Live verification waits until the user deploys and shares the URL. Skip DNS findings until the domain is known.
 
 Run:
 
 ```bash
-node "${CLAUDE_SKILL_DIR}/scripts/scan.mjs" <url> [--owned]
+node scripts/scan.mjs <url> [--owned]
 ```
 
-Do not read the script; run it. Output is JSON: `{ target, owned, skipped[], counts, findings[], passed[] }`. Findings are sorted critical → low, and each has a stable `id`. `passed` lists the checks that came back clean, and `skipped` lists what wasn't checked (for example `.env`/`.git` without `--owned`). Exit code 2 means the site could not be loaded: report the error and stop. The scan needs internet access: it downloads the retire.js vulnerability database once a day and looks up public DNS and Certificate Transparency logs. With `--owned`, if `raw.subdomainsChecked` is small (a wildcard certificate hides subdomains), ask the user for their DNS record list and check any CNAMEs pointing at cloud services. Add `--raw` when you need the underlying measurements: the third-party host list to build a CSP, or evidence to double-check a finding.
+`scripts/` is relative to this skill's folder (the one containing this SKILL.md); use its absolute path if you run from elsewhere. Do not read the script; run it. Output is JSON: `{ target, owned, skipped[], counts, findings[], passed[] }`. Findings are sorted critical → low, and each has a stable `id`. `passed` lists the checks that came back clean, and `skipped` lists what wasn't checked (for example `.env`/`.git` without `--owned`). Exit code 2 means the site could not be loaded: report the error and stop. The scan needs internet access: it downloads the retire.js vulnerability database once a day and looks up public DNS and Certificate Transparency logs. With `--owned`, if `raw.subdomainsChecked` is small (a wildcard certificate hides subdomains), ask the user for their DNS record list and check any CNAMEs pointing at cloud services. Add `--raw` when you need the underlying measurements: the third-party host list to build a CSP, or evidence to double-check a finding.
 
 ### 2. Report
 Use this template. Plain language; one line of "why it matters" per finding, taken from [references/findings.md](references/findings.md).
@@ -72,7 +72,7 @@ Find where headers are actually set. Read only the matching reference:
 | Signal in repo | Read |
 |---|---|
 | `next.config.*` | [references/platforms/nextjs.md](references/platforms/nextjs.md) |
-| `vercel.json`, or Vercel deploy without Next.js | [references/platforms/vercel.md](references/platforms/vercel.md) |
+| `vercel.json`, or Vercel deploy without Next.js (Next.js on Vercel: use nextjs.md) | [references/platforms/vercel.md](references/platforms/vercel.md) |
 | `netlify.toml` or `public/_headers` | [references/platforms/netlify.md](references/platforms/netlify.md) |
 | `nginx.conf`, `*.conf` with `server {` | [references/platforms/nginx.md](references/platforms/nginx.md) |
 | `wrangler.toml`, Cloudflare Pages, or `server: cloudflare` with none of the above | [references/platforms/cloudflare.md](references/platforms/cloudflare.md) |
@@ -83,7 +83,7 @@ If several match, the layer closest to the user wins (for example nginx in front
 Then run the repo checks in [references/local-checks.md](references/local-checks.md). They catch what the live scan can't see (secrets in client env vars, tokens in localStorage, source-map settings).
 
 ### 4. Plan
-List each planned change as `file → change → finding id it fixes` and get the user's OK before editing. If the user approved in advance, still print the list, then go ahead. For any CSP, follow [references/csp.md](references/csp.md): build the allowlist from the hosts the site actually loads (`--raw` → `raw.html.thirdPartyHosts`), report-only first.
+List each planned change as `file → change → finding id it fixes` and get the user's OK before editing. If the user approved in advance, still print the list as its own message before the first edit, then go ahead. For any CSP, follow [references/csp.md](references/csp.md): build the allowlist from the hosts the site actually loads (`--raw` → `raw.html.thirdPartyHosts`), report-only first.
 
 ### 5. Apply
 Make the edits. Run the project's build (and tests if present) to confirm nothing broke. If the build fails, fix or revert the change that broke it before continuing.

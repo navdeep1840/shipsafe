@@ -14,7 +14,7 @@ One entry per finding `id` the scanner emits: why it matters (one line for the r
 Fix: remove the file from the deploy output (check the build/publish dir), and block dotfiles at the server (see the platform file). **Rotate every secret that was in it**, since it may already be copied.
 
 **secret-in-js**: a private API key is in JavaScript every visitor downloads. Anyone can copy it.
-Fix: rotate the key now, move the call that uses it to a server route, and see local-checks.md for the env-var prefix that leaked it.
+Fix: tell the user to rotate the key now and not to deploy until it is moved server-side. Recommend moving the call that uses it to a server route (do not refactor it yourself), and see local-checks.md for the env-var prefix that leaked it.
 
 **cors-any-origin-credentials**: any website can make logged-in requests to this site and read the answers.
 Fix: replace origin reflection with an exact allowlist of your own origins; never combine a reflected origin with `Access-Control-Allow-Credentials: true`.
