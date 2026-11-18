@@ -1,0 +1,16 @@
+{
+  "name": "shipsafe",
+  "description": "Scan a live website for outside-visible security gaps, fix them in your repo, and verify the fix live.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "keywords": [
+    "security",
+    "csp",
+    "headers",
+    "website",
+    "hardening"
+  ],
+  "author": {
+    "name": "navdeep1840"
+  }
+}

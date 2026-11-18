@@ -1,0 +1,15 @@
+{
+  "name": "shipsafe",
+  "description": "Free Claude Code skill: scan a live website for outside-visible security gaps, fix them in your repo, verify live.",
+  "owner": {
+    "name": "navdeep1840"
+  },
+  "plugins": [
+    {
+      "name": "shipsafe",
+      "source": "./plugins/shipsafe",
+      "description": "Scan a live website for outside-visible security gaps, fix them in your repo, and verify the fix live.",
+      "version": "0.1.0"
+    }
+  ]
+}

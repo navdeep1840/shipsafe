@@ -1,0 +1,16 @@
+[
+  {"query": "is my website https://myshop.com secure?", "should_trigger": true},
+  {"query": "check the security headers on our marketing site", "should_trigger": true},
+  {"query": "add a content security policy to this next.js app", "should_trigger": true},
+  {"query": "we use optimizely, could what happened to zoom happen to us?", "should_trigger": true},
+  {"query": "my site got flagged for missing HSTS, fix it", "should_trigger": true},
+  {"query": "set up DMARC so people can't spoof our emails", "should_trigger": true},
+  {"query": "harden my vercel deployment", "should_trigger": true},
+  {"query": "scan app.example.com for exposed .env files, it's ours", "should_trigger": true},
+  {"query": "write a React component that renders user markdown safely", "should_trigger": false},
+  {"query": "explain the OWASP top 10", "should_trigger": false},
+  {"query": "audit my npm dependencies for vulnerabilities", "should_trigger": false},
+  {"query": "review this PR for SQL injection", "should_trigger": false},
+  {"query": "how do I set up nginx as a reverse proxy", "should_trigger": false},
+  {"query": "pentest this website I don't own", "should_trigger": false}
+]

@@ -1,0 +1,10 @@
+node_modules/
+.DS_Store
+# Third-party list (license: see research/README.md) and per-site results: not redistributed.
+research/data/top-1m.csv
+research/data/tranco.zip
+research/data/sample.csv
+research/data/*.jsonl
+research/compare/*.jsonl
+research/compare/hosts.csv
+research/compare/urls.txt
