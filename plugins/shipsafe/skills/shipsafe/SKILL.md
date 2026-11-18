@@ -10,8 +10,9 @@ compatibility: Requires Node.js 18+ and outbound network access. Zero npm depend
 Finds the security basics that anyone visiting a deployed site can see, and fixes them with small config changes. It does not attempt code-level bugs (access control, SQL injection); say so if the user asks for those.
 
 ## Rules
-- The scanner only makes normal requests. Add `--owned` only when the user owns the site (it is their repo, or they say so). `--owned` requests `.env`, `.git` and backups, and checks every subdomain found in Certificate Transparency logs for takeover. On anyone else's site that counts as probing.
-- If the user asks for `--owned` checks without saying the site is theirs, ask them to confirm they own it or have permission. A URL alone is not enough.
+- The scanner only makes normal requests. `--owned` also requests `.env`, `.git` and backups, and checks every subdomain found in Certificate Transparency logs for takeover. On anyone else's site that counts as probing.
+- Use `--owned` without asking only when the open repo deploys to that exact domain: it appears in `vercel.json`, `netlify.toml`, a `CNAME` file, `package.json` `homepage`, `wrangler.toml` routes, an nginx `server_name`, or a site-URL env var. Say which file showed it.
+- Otherwise, ask the user to confirm they own the site or have permission before using `--owned`. A URL alone is not enough. If they don't confirm, run the normal scan.
 - Never switch a CSP to enforcing without the user's explicit OK. New CSPs ship as `Content-Security-Policy-Report-Only`.
 - Never change DNS, deploy, commit or push. Give DNS records as text; the user applies them.
 - Keep every fix minimal: add or change headers, flags, settings and dependency versions. Do not refactor app code. Never run `git rm`, `git commit` or history rewrites; tell the user the command instead.

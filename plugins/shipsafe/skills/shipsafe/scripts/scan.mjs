@@ -10,7 +10,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36';
+// Says who we are, so site owners can recognise (and block) the scan. Tested on 40 sites: no more blocks than a Chrome UA.
+const UA = 'Mozilla/5.0 (compatible; shipsafe/0.1; +https://github.com/navdeep1840/shipsafe)';
 const TIMEOUT = 15000;
 const MAX_BODY = 3_000_000;
 

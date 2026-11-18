@@ -139,7 +139,13 @@ It prints JSON with findings sorted critical → low. Exit code `0` means it fin
 
 ## Responsible use
 
-The scanner sends the same requests a browser does, plus public DNS lookups. `--owned` asks for `.env`, `.git` and backups, and checks every subdomain. Only use it on sites you own or are authorised to test. The research publishes totals only and names no site's weaknesses.
+Like nuclei and OWASP ZAP, shipsafe runs on your machine and you are responsible for what you scan.
+
+- **Normal scan:** about 20 requests that any browser makes, plus public DNS lookups. Nothing is attacked, guessed or brute-forced.
+- **`--owned`:** also asks for `.env`, `.git` and backups, and checks every subdomain. Only use it on sites you own or are authorised to test. The agent turns it on by itself only when your open repo deploys to that domain, and asks you otherwise.
+- **Nothing sensitive is printed:** an exposed file is reported by its path only, never its contents, and a leaked key shows only its first 8 characters.
+- **It identifies itself:** every request says `shipsafe` with a link to this repo, so site owners can see who scanned and block it if they want.
+- **No site is named:** the research publishes totals only.
 
 ## Contributing
 
