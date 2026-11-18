@@ -137,3 +137,11 @@ test('no-https-redirect is not reported for HSTS-preloaded domains', () => {
   assert.ok(findings(base).some((f) => f.id === 'no-https-redirect'));
   assert.ok(!findings({ ...base, hstsPreloaded: true }).some((f) => f.id === 'no-https-redirect'));
 });
+
+test('splitTarget keeps the page path and accepts bare domains', async () => {
+  const { splitTarget } = await import('./scan.mjs');
+  assert.deepEqual(splitTarget('live.com'), { domain: 'live.com', pagePath: '/' });
+  assert.deepEqual(splitTarget('https://shop.example.com/login'), { domain: 'shop.example.com', pagePath: '/login' });
+  assert.deepEqual(splitTarget('HTTPS://example.com?ref=1'), { domain: 'example.com', pagePath: '/?ref=1' });
+  assert.deepEqual(splitTarget('example.com/a/b#x'), { domain: 'example.com', pagePath: '/a/b#x' });
+});

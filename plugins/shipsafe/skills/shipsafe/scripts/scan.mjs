@@ -420,15 +420,22 @@ const OWNED_PROBES = [
   ['/phpinfo.php', (b) => b.includes('phpinfo()')],
 ];
 
+// 'example.com', 'https://example.com/login?x=1' -> host + path (path defaults to '/').
+export function splitTarget(input) {
+  const rest = input.trim().replace(/^https?:\/\//i, '');
+  const i = rest.search(/[/?#]/);
+  return i < 0 ? { domain: rest, pagePath: '/' } : { domain: rest.slice(0, i), pagePath: (rest[i] === '/' ? '' : '/') + rest.slice(i) };
+}
+
 export async function scan(input, { owned = false } = {}) {
-  const domain = input.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+  const { domain, pagePath } = splitTarget(input); // scan the page given, not always the homepage
   const out = { domain, owned, scannedAt: new Date().toISOString() };
   // 1. Does plain http:// end up on https://?
   try { const h = await follow('http://' + domain); out.httpRedirectsToHttps = h.url.startsWith('https://'); } catch (e) { out.httpRedirectsToHttps = null; out.httpError = e.cause?.code || e.name; }
   // 2. Main HTTPS fetch; Origin header lets us see if CORS reflects arbitrary origins.
   let res, finalUrl, html = '';
   try {
-    const f = await follow('https://' + domain, { origin: 'https://scanner-test.invalid' });
+    const f = await follow('https://' + domain + pagePath, { origin: 'https://scanner-test.invalid' });
     res = f.res; finalUrl = f.url; out.finalUrl = finalUrl; out.status = res.status;
     const buf = Buffer.from(await res.arrayBuffer());
     html = buf.subarray(0, MAX_BODY).toString('utf8');
